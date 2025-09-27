@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Plus, Users, Receipt, Settings } from "lucide-react";
 import React from "react";
 import { useAccount } from "wagmi";
+import { CreateGroup } from "./createGroup";
 
 export default function GroupMain() {
   const [showCreateGroup, setShowCreateGroup] = React.useState(false);
@@ -192,6 +193,13 @@ export default function GroupMain() {
           </div>
         </div>
       </div>
+      {/* Create Group Modal */}
+      {showCreateGroup && (
+        <CreateGroup
+          onClose={() => setShowCreateGroup(false)}
+          userAddress={address as string}
+        />
+      )}
     </div>
   );
 }
