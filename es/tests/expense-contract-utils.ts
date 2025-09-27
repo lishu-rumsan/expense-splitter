@@ -4,7 +4,7 @@ import {
   ExpenseAdded,
   ExpenseSettled,
   GroupCreated
-} from "../generated/ExpenseSplitter/ExpenseSplitter"
+} from "../generated/ExpenseContract/ExpenseContract"
 
 export function createExpenseAddedEvent(
   expenseId: BigInt,

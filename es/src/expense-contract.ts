@@ -2,7 +2,7 @@ import {
   ExpenseAdded as ExpenseAddedEvent,
   ExpenseSettled as ExpenseSettledEvent,
   GroupCreated as GroupCreatedEvent
-} from "../generated/ExpenseSplitter/ExpenseSplitter"
+} from "../generated/ExpenseContract/ExpenseContract"
 import { ExpenseAdded, ExpenseSettled, GroupCreated } from "../generated/schema"
 
 export function handleExpenseAdded(event: ExpenseAddedEvent): void {

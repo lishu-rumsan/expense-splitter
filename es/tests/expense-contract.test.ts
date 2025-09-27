@@ -8,9 +8,9 @@ import {
 } from "matchstick-as/assembly/index"
 import { BigInt, Address } from "@graphprotocol/graph-ts"
 import { ExpenseAdded } from "../generated/schema"
-import { ExpenseAdded as ExpenseAddedEvent } from "../generated/ExpenseSplitter/ExpenseSplitter"
-import { handleExpenseAdded } from "../src/expense-splitter"
-import { createExpenseAddedEvent } from "./expense-splitter-utils"
+import { ExpenseAdded as ExpenseAddedEvent } from "../generated/ExpenseContract/ExpenseContract"
+import { handleExpenseAdded } from "../src/expense-contract"
+import { createExpenseAddedEvent } from "./expense-contract-utils"
 
 // Tests structure (matchstick-as >=0.5.0)
 // https://thegraph.com/docs/en/subgraphs/developing/creating/unit-testing-framework/#tests-structure
