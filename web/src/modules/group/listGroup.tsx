@@ -50,10 +50,6 @@ export function GroupList({ userAddress }: GroupListProps) {
             Create your first group to start splitting expenses with friends,
             family, or colleagues.
           </p>
-          <Button>
-            <Plus className="w-4 h-4 mr-2" />
-            Create Your First Group
-          </Button>
         </CardContent>
       </Card>
     );

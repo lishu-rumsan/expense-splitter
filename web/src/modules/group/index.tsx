@@ -11,6 +11,7 @@ import { Plus, Users, Receipt, Settings } from "lucide-react";
 import React from "react";
 import { useAccount } from "wagmi";
 import { CreateGroup } from "./createGroup";
+import { GroupList } from "./listGroup";
 
 export default function GroupMain() {
   const [showCreateGroup, setShowCreateGroup] = React.useState(false);
@@ -86,8 +87,7 @@ export default function GroupMain() {
               </TabsList>
 
               <TabsContent value="groups">
-                {/* <GroupList userAddress={userAddress} /> */}
-                Group List
+                <GroupList userAddress={address as string} />
               </TabsContent>
 
               <TabsContent value="expenses">
