@@ -4,9 +4,11 @@ import { Button } from "@/components/ui/button";
 import { ConnectKitButton } from "connectkit";
 import { Wallet, Info } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useAccount } from "wagmi";
 
 export default function Dashboard() {
   const router = useRouter();
+  const { isConnected, address } = useAccount();
   const handleWalletConnect = () => {
     router.push("/wallet");
   };
@@ -14,6 +16,10 @@ export default function Dashboard() {
   const handleAboutUs = () => {
     router.push("/aboutus");
   };
+
+  {
+    isConnected && router.push("/form");
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center">

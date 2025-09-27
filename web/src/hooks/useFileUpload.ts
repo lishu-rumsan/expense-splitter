@@ -1,7 +1,11 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import { synapseStorage, type UploadResult } from "@/lib/synapse-service";
+import { Synapse, RPC_URLS } from "@filoz/synapse-sdk";
+
+export interface UploadResult {
+  pieceCid: string;
+}
 
 export interface UseFileUploadOptions {
   privateKey?: string;
@@ -54,10 +58,19 @@ export function useFileUpload(
           setUploadProgress((prev) => Math.min(prev + 10, 90));
         }, 200);
 
-        const result = await synapseStorage.uploadFile(
-          file,
-          options.privateKey
-        );
+        // Initialize Synapse SDK
+        const synapse = await Synapse.create({
+          privateKey: options.privateKey,
+          rpcURL: RPC_URLS.calibration.websocket,
+        });
+
+        // Convert file to Uint8Array
+        const fileBuffer = await file.arrayBuffer();
+        const fileData = new Uint8Array(fileBuffer);
+
+        // Upload using Synapse SDK
+        const uploadResult = await synapse.storage.upload(fileData);
+        const result = { pieceCid: uploadResult.pieceCid.toString() };
 
         clearInterval(progressInterval);
         setUploadProgress(100);
@@ -87,10 +100,18 @@ export function useFileUpload(
         setIsDownloading(true);
         setError(null);
 
-        const data = await synapseStorage.downloadFile(
-          pieceCid,
-          options.privateKey
-        );
+        if (!options.privateKey) {
+          throw new Error("Private key is required for file download");
+        }
+
+        // Initialize Synapse SDK
+        const synapse = await Synapse.create({
+          privateKey: options.privateKey,
+          rpcURL: RPC_URLS.calibration.websocket,
+        });
+
+        // Download using Synapse SDK
+        const data = await synapse.storage.download(pieceCid);
         return data;
       } catch (err) {
         const error = err as Error;
