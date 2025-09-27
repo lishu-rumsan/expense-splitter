@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { X, Plus, Users, Check } from "lucide-react";
+import { useExpenseContract } from "@/hooks/useExpenseContract";
 
 const createGroupSchema = z.object({
   groupName: z
@@ -35,9 +36,17 @@ type CreateGroupFormData = z.infer<typeof createGroupSchema>;
 interface CreateGroupProps {
   onClose: () => void;
   userAddress: string;
+  onGroupCreated?: () => void; // Add callback to refresh list
 }
 
-export function CreateGroup({ onClose, userAddress }: CreateGroupProps) {
+export function CreateGroup({
+  onClose,
+  userAddress,
+  onGroupCreated,
+}: CreateGroupProps) {
+  const [members, setMembers] = useState<string[]>([]);
+  const [isCreating, setIsCreating] = useState(false);
+  const { createGroup } = useExpenseContract();
   const {
     register,
     handleSubmit,
@@ -55,9 +64,6 @@ export function CreateGroup({ onClose, userAddress }: CreateGroupProps) {
     },
   });
 
-  const [members, setMembers] = useState<string[]>([]);
-  const [isCreating, setIsCreating] = useState(false);
-
   const memberAddress = watch("memberAddress");
   const groupName = watch("groupName");
 
@@ -65,7 +71,8 @@ export function CreateGroup({ onClose, userAddress }: CreateGroupProps) {
     if (
       memberAddress &&
       !members.includes(memberAddress) &&
-      memberAddress !== userAddress
+      memberAddress !== userAddress &&
+      /^0x[a-fA-F0-9]{40}$/.test(memberAddress) // Validate Ethereum address
     ) {
       setMembers([...members, memberAddress]);
       setValue("memberAddress", "");
@@ -77,7 +84,62 @@ export function CreateGroup({ onClose, userAddress }: CreateGroupProps) {
   };
 
   const onSubmit = async (data: CreateGroupFormData) => {
-    console.log({ data, members });
+    if (!data.groupName.trim()) {
+      alert("Please enter a group name");
+      return;
+    }
+
+    setIsCreating(true);
+    try {
+      console.log("Creating group with:", data.groupName, members);
+      const receipt = await createGroup(data.groupName, members);
+
+      console.log("Transaction receipt:", receipt);
+
+      // Check transaction status
+      if (receipt.status === 1) {
+        alert(`✅ Group Created Successfully!
+        
+Transaction Hash: ${receipt.hash}
+Block Number: ${receipt.blockNumber}
+Gas Used: ${receipt.gasUsed.toString()}
+
+Your group "${data.groupName}" has been created on the blockchain.`);
+
+        // Reset form and close modal
+        reset();
+        setMembers([]);
+
+        // Call callback to refresh group list
+        if (onGroupCreated) {
+          onGroupCreated();
+        }
+
+        onClose();
+      } else {
+        alert("❌ Transaction failed - status: " + receipt.status);
+      }
+    } catch (err: any) {
+      console.error("Error creating group:", err);
+
+      // More specific error handling
+      if (err.code === 4001) {
+        alert("❌ Transaction rejected by user");
+      } else if (err.message.includes("insufficient funds")) {
+        alert("❌ Insufficient funds for gas fees");
+      } else if (
+        err.message.includes("ENS") ||
+        err.code === "UNSUPPORTED_OPERATION"
+      ) {
+        alert(
+          "❌ ENS names are not supported on Base Sepolia. Please use raw Ethereum addresses (0x...)"
+        );
+      } else {
+        alert("❌ Failed: " + err.message);
+      }
+    } finally {
+      setIsCreating(false);
+    }
   };
 
   return (
@@ -161,15 +223,19 @@ export function CreateGroup({ onClose, userAddress }: CreateGroupProps) {
                 <Button
                   type="button"
                   onClick={addMemberToList}
-                  disabled={!memberAddress || memberAddress === userAddress}
+                  disabled={
+                    !memberAddress ||
+                    memberAddress === userAddress ||
+                    !/^0x[a-fA-F0-9]{40}$/.test(memberAddress)
+                  }
                 >
                   <Plus className="w-4 h-4" />
                 </Button>
               </div>
 
-              {memberAddress === userAddress && (
-                <p className="text-sm text-amber-600">
-                  You're already the group creator
+              {memberAddress && !/^0x[a-fA-F0-9]{40}$/.test(memberAddress) && (
+                <p className="text-sm text-red-600">
+                  Please enter a valid Ethereum address (0x...)
                 </p>
               )}
 
