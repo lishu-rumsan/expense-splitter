@@ -1,0 +1,30 @@
+type ExpenseAdded @entity(immutable: true) {
+  id: Bytes!
+  expenseId: BigInt! # uint256
+  groupId: BigInt! # uint256
+  description: String! # string
+  amount: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type ExpenseSettled @entity(immutable: true) {
+  id: Bytes!
+  expenseId: BigInt! # uint256
+  settler: Bytes! # address
+  amount: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type GroupCreated @entity(immutable: true) {
+  id: Bytes!
+  groupId: BigInt! # uint256
+  name: String! # string
+  creator: Bytes! # address
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
